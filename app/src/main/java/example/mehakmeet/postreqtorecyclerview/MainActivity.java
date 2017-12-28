@@ -40,12 +40,14 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
 
+        mAPIService= ApiUtils.getAPIService();
+
         foodList=new ArrayList<>();
+        sendPost();
+        Log.i("SIZE OF FoodList",String.valueOf(foodList.size()));
         mAdapter=new MyAdapter(foodList,this);
         mRecyclerView.setAdapter(mAdapter);
 
-        mAPIService= ApiUtils.getAPIService();
-        sendPost();
 
     }
 
@@ -60,6 +62,38 @@ public class MainActivity extends AppCompatActivity {
                 //Log.i("tagg",call.request().url().toString());
                 if(response.isSuccessful()) {
                     try {
+
+                        /*
+                        EXAMPLE JSON
+                        {
+    "categories": [
+        "Pizza",
+        "Breakfast"
+    ],
+    "menu": {
+        "Pizza": [
+            {
+                "price": "99",
+                "name": "Pineapple Pizza",
+                "is_veg": true
+            },
+            {
+                "price": "89",
+                "name": "Chicken Peproni Pizza",
+                "is_veg": false
+            }
+        ],
+        "Breakfast": [
+            {
+                "price": "39",
+                "name": "Pancake",
+                "is_veg": true
+            }
+        ]
+    }
+}
+                         */
+
                         JSONObject jObj=new JSONObject(response.body().toString());
                         String info=jObj.getString("categories");
                         String menu=jObj.getString("menu");
@@ -75,24 +109,34 @@ public class MainActivity extends AppCompatActivity {
 
                             JSONArray b= new JSONArray(pizza_obj);
                         Log.i("PIZZA",pizza_obj);
-                        String name;
-                        int price;
-                        boolean is_veg;
 
+                      //  foodList=new ArrayList<>();
+
+                        Log.i("Size of b",String.valueOf(b.length()));
                         for(int i=0;i<b.length();i++){
+                            String name;
+                            int price;
+                            boolean is_veg;
+                                JSONObject jobject=(JSONObject) b.get(i);
 
-                                JSONObject jobject=b.getJSONObject(i);
                                 name=jobject.getString("name");
                                 price=Integer.parseInt(jobject.getString("price"));
                                 is_veg=jobject.getBoolean("is_veg");
 
 
-                                food collection=new food(name,price,0,is_veg);
+                                Log.i("Names"+i,name);
+                            food collection=new food();
+
+                                collection.setName(name);
+                                collection.setQuant(0);
+                                collection.setIs_veg(is_veg);
+                                collection.setPrice(price);
 
                                 foodList.add(collection);
-                            }
 
-                            mAdapter.notifyDataSetChanged();
+                            }
+                        Log.i("SIZE OF FoodList",String.valueOf(foodList.size()));
+                       mAdapter.notifyDataSetChanged();
 
                        // }
 
