@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.google.gson.JsonObject;
@@ -29,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<food> foodList=new ArrayList<>();
     MyAdapter mAdapter;
 
+    EditText name_add,price_add;
+    Button add_btn;
    private ApiInterface mAPIService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +42,33 @@ public class MainActivity extends AppCompatActivity {
 
         mRecyclerView=findViewById(R.id.recyclerview);
 
+        name_add=findViewById(R.id.name_add);
+        price_add=findViewById(R.id.price_add);
+        add_btn=findViewById(R.id.add_btn);
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
-
         mAPIService= ApiUtils.getAPIService();
-
         foodList=new ArrayList<>();
         sendPost();
         Log.i("SIZE OF FoodList",String.valueOf(foodList.size()));
         mAdapter=new MyAdapter(foodList,this);
         mRecyclerView.setAdapter(mAdapter);
+        add_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String add_new=name_add.getText().toString();
+                int price_new=Integer.parseInt(price_add.getText().toString());
+
+                food new_food=new food(add_new,price_new,0,false);
+
+                foodList.add(new_food);
+                mAdapter.notifyDataSetChanged();
+
+
+            }
+        });
 
 
     }
@@ -125,12 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                                 Log.i("Names"+i,name);
-                            food collection=new food();
-
-                                collection.setName(name);
-                                collection.setQuant(0);
-                                collection.setIs_veg(is_veg);
-                                collection.setPrice(price);
+                            food collection=new food(name,price,0,is_veg);
 
                                 foodList.add(collection);
 
